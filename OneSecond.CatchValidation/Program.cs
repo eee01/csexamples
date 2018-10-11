@@ -41,6 +41,78 @@ namespace OneSecond.CatchValidation
         }
     }
 
+    class DateTimeParsersExample : IExample
+    {
+        public void Run()
+        {
+            var runner = new OneSecondRunnerService<Context>();
+            var ctx01 = new Context { Name = "Parse        dates" };
+            var ctx02 = new Context { Name = "Parse catch  dates" };
+            var ctx03 = new Context { Name = "TryParse     dates" };
+            var ctx04 = new Context { Name = "Parse    bad dates" };
+            var ctx05 = new Context { Name = "TryParse bad dates" };
+            runner.Run(ParseDates, ctx01);
+            runner.Run(ParseCatchDates, ctx02);
+            runner.Run(TryParseDates, ctx03);
+            runner.Run(ParseBadDates, ctx04);
+            runner.Run(TryParseBadDates, ctx05);
+        }
+        private void ParseDates(Context ctx)
+        {
+            for(long i = 0; ; i++)
+            {
+                var str = "2018-03-23";
+                var result = DateTime.Parse(str);
+                ctx.Counter++;
+            }
+        }
+        private void ParseCatchDates(Context ctx)
+        {
+            for(long i = 0; ; i++)
+            {
+                var str = "2018-03-23";
+                try
+                {
+                    var result = DateTime.Parse(str);
+                    ctx.Counter++;
+                }
+                catch { }
+            }
+        }
+        private void TryParseDates(Context ctx)
+        {
+            for(long i = 0; ; i++)
+            {
+                var str = "2018-03-23";
+                DateTime result;
+                if(DateTime.TryParse(str, out result))
+                    ctx.Counter++;
+            }
+        }
+        private void ParseBadDates(Context ctx)
+        {
+            for(long i = 0; ; i++)
+            {
+                var str = "2018-03-33";// 33 of march
+                try
+                {
+                    var result = DateTime.Parse(str);
+                }
+                catch { ctx.Counter++; }
+            }
+        }
+        private void TryParseBadDates(Context ctx)
+        {
+            for(long i = 0; ; i++)
+            {
+                var str = "2018-03-33";// 33 of march
+                DateTime result;
+                if(!DateTime.TryParse(str, out result))
+                    ctx.Counter++;
+            }
+        }
+    }
+
     class LongParsersExample : IExample
     {
         public void Run()
@@ -122,7 +194,7 @@ namespace OneSecond.CatchValidation
         {
             Console.WriteLine("start");
 
-            var examples = new IExample[] { new LongParsersExample() };
+            var examples = new IExample[] { new LongParsersExample(), new DateTimeParsersExample() };
             examples.ToList().ForEach(example=>example.Run());
 
             Console.WriteLine("press any key to exit");
